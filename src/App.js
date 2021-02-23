@@ -1,4 +1,3 @@
-import './App.css';
 import {leads} from './API/Data.js'
 import {LeadsTable} from "./Components/Table";
 

@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import styles from './Table.module.css'
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {makeStyles} from '@material-ui/core/styles';
@@ -10,12 +9,8 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import TableSortLabel from '@material-ui/core/TableSortLabel'
-import IconButton from '@material-ui/core/IconButton';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
-
-import FilterListIcon from '@material-ui/icons/FilterList';
 
 export const LeadsTable = ({leads}) => {
     const useSortableData = (items, config = null) => {
@@ -35,7 +30,6 @@ export const LeadsTable = ({leads}) => {
                 });
             }
             setLeadsList(sortableItems)
-            // return sortableItems;
         }, [items, sortConfig]);
         const requestSort = key => {
             let direction = 'ascending';
@@ -68,7 +62,6 @@ export const LeadsTable = ({leads}) => {
         }
 
         const pickerHandler = (date, el) => {
-            // console.log(new Date(date).getMonth())
             if (date) {
                 setStartDate(date)
                 const filterLeads = leads.filter((it, j) => {
@@ -79,21 +72,16 @@ export const LeadsTable = ({leads}) => {
                 setStartDate('')
                 setLeadsList(leads)
             }
-
         }
-
         return {items: leadsList, requestSort, sortConfig, inputFilter, statusHandler, pickerHandler};
     }
-    // useSortableData(leads)
     const {items, requestSort, inputFilter, statusHandler, sortConfig, pickerHandler} = useSortableData(leads);
     const [startDate, setStartDate] = useState('');
     const useStyles = makeStyles({
         table: {
             border: 0,
             background: '#0c162c94',
-            display: 'block',
             width: '100%',
-            // height: '100vh',
             overflowX: 'auto',
             borderRadius: 3,
             boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
@@ -107,19 +95,6 @@ export const LeadsTable = ({leads}) => {
                 color: '#ffffff'
             }
         },
-        visuallyHidden: {
-            border: 0,
-            clip: 'rect(0 0 0 0)',
-            height: 1,
-            margin: -1,
-            overflow: 'hidden',
-            padding: 0,
-            position: 'absolute',
-            top: 20,
-            width: 1,
-        },
-
-
     });
     const classes = useStyles();
     return (
@@ -135,7 +110,7 @@ export const LeadsTable = ({leads}) => {
                                             key={i}>
                                             <span onClick={() => requestSort(el)}>{el}
                                                 {
-                                                    sortConfig && sortConfig.direction === "ascending" ? <ArrowDropDownIcon/> : <ArrowDropUpIcon/>
+                                                    sortConfig && sortConfig.key == el && sortConfig.direction === "ascending" ? <ArrowDropDownIcon/> : <ArrowDropUpIcon/>
                                                 }
                                             </span>
                                             {el === 'status' ? <select onChange={(e) => statusHandler(e, el)}>
