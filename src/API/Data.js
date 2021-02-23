@@ -43,4 +43,15 @@ export const leads = [
     "close_date": "Aug 26, 2021",
     "country": "Ukraine",
   },
+    {
+        "number": "95728",
+        "customer": "Masha Chernova",
+        "status": "decline",
+        "actual": "1000",
+        "total": "10406.5",
+        "type": "company",
+        "create_date": "Feb 18, 2021",
+        "close_date": "Feb 18, 2021",
+        "country": "Poland",
+    },
 ]

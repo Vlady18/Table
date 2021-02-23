@@ -1,6 +1,21 @@
 import React, {useState} from 'react';
+import styles from './Table.module.css'
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import {makeStyles} from '@material-ui/core/styles';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
+import TableSortLabel from '@material-ui/core/TableSortLabel'
+import IconButton from '@material-ui/core/IconButton';
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
+
+import FilterListIcon from '@material-ui/icons/FilterList';
 
 export const LeadsTable = ({leads}) => {
     const useSortableData = (items, config = null) => {
@@ -67,96 +82,102 @@ export const LeadsTable = ({leads}) => {
 
         }
 
-        return {items: leadsList, requestSort, inputFilter, statusHandler, pickerHandler};
+        return {items: leadsList, requestSort, sortConfig, inputFilter, statusHandler, pickerHandler};
     }
     // useSortableData(leads)
-    const {items, requestSort, inputFilter, statusHandler, pickerHandler} = useSortableData(leads);
+    const {items, requestSort, inputFilter, statusHandler, sortConfig, pickerHandler} = useSortableData(leads);
     const [startDate, setStartDate] = useState('');
+    const useStyles = makeStyles({
+        table: {
+            border: 0,
+            background: '#0c162c94',
+            display: 'block',
+            width: '100%',
+            // height: '100vh',
+            overflowX: 'auto',
+            borderRadius: 3,
+            boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
+            padding: '0 30px',
+            '& span': {
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center'
+            },
+            '& td': {
+                color: '#ffffff'
+            }
+        },
+        visuallyHidden: {
+            border: 0,
+            clip: 'rect(0 0 0 0)',
+            height: 1,
+            margin: -1,
+            overflow: 'hidden',
+            padding: 0,
+            position: 'absolute',
+            top: 20,
+            width: 1,
+        },
 
+
+    });
+    const classes = useStyles();
     return (
-        <table>
-            <thead>
-            <tr>
+        <div>
+            <TableContainer component={Paper}>
+                <Table className={classes.table} aria-label="simple table">
+                    <TableHead>
+                        <TableRow>
+                            {
+                                Object.keys(leads[0]).map((el, i) => {
+                                        // if(el === "controls") return null
+                                        return <TableCell
+                                            key={i}>
+                                            <span onClick={() => requestSort(el)}>{el}
+                                                {
+                                                    sortConfig && sortConfig.direction === "ascending" ? <ArrowDropDownIcon/> : <ArrowDropUpIcon/>
+                                                }
+                                            </span>
+                                            {el === 'status' ? <select onChange={(e) => statusHandler(e, el)}>
+                                                    <option value="all">all</option>
+                                                    <option value="processing">processing</option>
+                                                    <option value="ready">ready</option>
+                                                    <option value="decline">decline</option>
+                                                </select>
+                                                : el === 'type' ? <select onChange={(e) => statusHandler(e, el)}>
+                                                        <option value="all">all</option>
+                                                        <option value="product">product</option>
+                                                        <option value="company">company</option>
+                                                    </select>
+                                                    : el === 'create_date' ?
+                                                        <DatePicker dateFormat="MMMM d, yyyy" selected={startDate}
+                                                                    onChange={date => pickerHandler(date, el)}/>
+                                                        :
+                                                        <input type="text" onChange={(e) => inputFilter(e, el)}/>}
+                                        </TableCell>
+                                    }
+                                )
+                            }
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {items.map((product) => (
+                            <TableRow key={product.number}>
+                                <TableCell align="left">{product.number}</TableCell>
+                                <TableCell align="left">{product.customer}</TableCell>
+                                <TableCell align="left">{product.status}</TableCell>
+                                <TableCell align="left">{product.actual}</TableCell>
+                                <TableCell align="left">{product.total}</TableCell>
+                                <TableCell align="left">{product.type}</TableCell>
+                                <TableCell align="left">{product.create_date}</TableCell>
+                                <TableCell align="left">{product.close_date}</TableCell>
+                                <TableCell align="left">{product.country}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </div>
 
-                {
-                    Object.keys(leads[0]).map((el, i) => {
-                            // if(el === "controls") return null
-                            return <th
-                                key={i}>
-                                <span onClick={() => requestSort(el)}>{el}</span>
-                                {el === 'status' ? <select onChange={(e) => statusHandler(e, el)}>
-                                        <option value="all">all</option>
-                                        <option value="processing">processing</option>
-                                        <option value="ready">ready</option>
-                                        <option value="decline">decline</option>
-                                    </select>
-                                    : el === 'type' ? <select onChange={(e) => statusHandler(e, el)}>
-                                            <option value="all">all</option>
-                                            <option value="product">product</option>
-                                            <option value="company">company</option>
-                                        </select>
-                                        : el === 'create_date' ?
-                                            <DatePicker dateFormat="MMMM d, yyyy" selected={startDate}
-                                                        onChange={date => pickerHandler(date, el)}/>
-                                            :
-                                            <input type="text" onChange={(e) => inputFilter(e, el)}/>}
-                            </th>
-                        }
-                    )
-                }
-
-                {/*<th>Number*/}
-                {/*    <input type="text"/>*/}
-                {/*</th>*/}
-                {/*<th>Customer*/}
-                {/*    <input type="text"/>*/}
-                {/*</th>*/}
-                {/*<th>Status*/}
-                {/*    <select>*/}
-                {/*        <option value="1">1</option>*/}
-                {/*        <option value="2">2</option>*/}
-                {/*        <option value="3">3</option>*/}
-                {/*    </select>*/}
-                {/*</th>*/}
-                {/*<th>Actual*/}
-                {/*    <input type="text"/>*/}
-                {/*</th>*/}
-                {/*<th>Total*/}
-                {/*    <input type="text"/>*/}
-                {/*</th>*/}
-                {/*<th>Type*/}
-                {/*    <select>*/}
-                {/*        <option value="1">1</option>*/}
-                {/*        <option value="2">2</option>*/}
-                {/*        <option value="3">3</option>*/}
-                {/*    </select>*/}
-                {/*</th>*/}
-                {/*<th>Create Date*/}
-                {/*    <input type="text"/>*/}
-                {/*</th>*/}
-                {/*<th>Close Date*/}
-                {/*    <input type="text"/>*/}
-                {/*</th>*/}
-                {/*<th>Country*/}
-                {/*    <input type="text"/>*/}
-                {/*</th>*/}
-            </tr>
-            </thead>
-            <tbody>
-            {items.map(product => (
-                <tr key={product.number}>
-                    <td>{product.number}</td>
-                    <td>{product.customer}</td>
-                    <td>{product.status}</td>
-                    <td>{product.actual}</td>
-                    <td>{product.total}</td>
-                    <td>{product.type}</td>
-                    <td>{product.create_date}</td>
-                    <td>{product.close_date}</td>
-                    <td>{product.country}</td>
-                </tr>
-            ))}
-            </tbody>
-        </table>
     );
 }
