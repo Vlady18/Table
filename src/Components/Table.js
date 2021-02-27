@@ -16,6 +16,7 @@ export const LeadsTable = ({leads}) => {
     const useSortableData = (items, config = null) => {
         const [sortConfig, setSortConfig] = useState(config);
         const [leadsList, setLeadsList] = useState(leads);
+        const [fillters, setFilters] = useState({})
         React.useMemo(() => {
             let sortableItems = [...leadsList];
             if (sortConfig !== null) {
@@ -38,44 +39,34 @@ export const LeadsTable = ({leads}) => {
             }
             setSortConfig({key, direction});
         }
-
+        const searchFilterTable = (data, el) => {
+            const newObj = {...fillters, [el]: data}
+            setFilters(newObj)
+            let resultFilter = leads;
+            Object.keys(newObj).map((elem, idx) => {
+                resultFilter = resultFilter.filter((it, j) => {
+                    if (elem === "create_date") {
+                        if(!newObj[elem]) return it
+                        return new Date(it[elem]).getTime() === new Date(newObj[elem]).getTime();
+                    }
+                    return it[elem].toLowerCase().indexOf(newObj[elem].toLowerCase()) != -1;
+                })
+            })
+            setLeadsList(resultFilter)
+        }
         const inputFilter = (e, el) => {
-            if (e.target.value) {
-                const filterLeads = leads.filter((it, j) => {
-                    return it[el].toLowerCase().indexOf(e.target.value.toLowerCase()) != -1;
-                })
-                setLeadsList(filterLeads)
-            } else {
-                setLeadsList(leads)
-            }
+            searchFilterTable(e.target.value, el)
         }
-
         const statusHandler = (e, el) => {
-            if (e.target.value !== 'all') {
-                const filterLeads = leads.filter((it, j) => {
-                    return it[el].toLowerCase().indexOf(e.target.value.toLowerCase()) != -1;
-                })
-                setLeadsList(filterLeads)
-            } else {
-                setLeadsList(leads)
-            }
+            e.target.value === "all" ? searchFilterTable("", el) : searchFilterTable(e.target.value, el)
         }
-
         const pickerHandler = (date, el) => {
-            if (date) {
                 setStartDate(date)
-                const filterLeads = leads.filter((it, j) => {
-                    return new Date(it[el]).getTime() === new Date(date).getTime()
-                })
-                setLeadsList(filterLeads)
-            } else {
-                setStartDate('')
-                setLeadsList(leads)
-            }
+                searchFilterTable(date, el)
         }
-        return {items: leadsList, requestSort, sortConfig, inputFilter, statusHandler, pickerHandler};
+        return {items: leadsList, requestSort, sortConfig, inputFilter, statusHandler, pickerHandler, fillters};
     }
-    const {items, requestSort, inputFilter, statusHandler, sortConfig, pickerHandler} = useSortableData(leads);
+    const {items, requestSort, inputFilter, statusHandler, sortConfig, pickerHandler, fillters} = useSortableData(leads);
     const [startDate, setStartDate] = useState('');
     const useStyles = makeStyles({
         table: {
@@ -96,6 +87,11 @@ export const LeadsTable = ({leads}) => {
             }
         },
     });
+    const createSelect = (arr, el) =>{
+        return <select onChange={(e) => statusHandler(e, el)}>
+            {arr.map((opt, i) => <option key={opt} value={opt}>{opt}</option>)}
+        </select>
+    }
     const classes = useStyles();
     return (
         <div>
@@ -105,30 +101,21 @@ export const LeadsTable = ({leads}) => {
                         <TableRow>
                             {
                                 Object.keys(leads[0]).map((el, i) => {
-                                        // if(el === "controls") return null
                                         return <TableCell
                                             key={i}>
                                             <span onClick={() => requestSort(el)}>{el}
                                                 {
-                                                    sortConfig && sortConfig.key == el && sortConfig.direction === "ascending" ? <ArrowDropDownIcon/> : <ArrowDropUpIcon/>
+                                                    sortConfig && sortConfig.key == el && sortConfig.direction === "ascending" ?
+                                                        <ArrowDropDownIcon/> : <ArrowDropUpIcon/>
                                                 }
                                             </span>
-                                            {el === 'status' ? <select onChange={(e) => statusHandler(e, el)}>
-                                                    <option value="all">all</option>
-                                                    <option value="processing">processing</option>
-                                                    <option value="ready">ready</option>
-                                                    <option value="decline">decline</option>
-                                                </select>
-                                                : el === 'type' ? <select onChange={(e) => statusHandler(e, el)}>
-                                                        <option value="all">all</option>
-                                                        <option value="product">product</option>
-                                                        <option value="company">company</option>
-                                                    </select>
-                                                    : el === 'create_date' ?
-                                                        <DatePicker dateFormat="MMMM d, yyyy" selected={startDate}
+                                            {el === 'status'
+                                                ? createSelect(["all", "processing", "ready", "decline"], el)
+                                                : el === 'type' ? createSelect(["all", "product", "company"], el)
+                                                    : el === 'create_date'
+                                                        ? <DatePicker dateFormat="MMMM d, yyyy" selected={startDate}
                                                                     onChange={date => pickerHandler(date, el)}/>
-                                                        :
-                                                        <input type="text" onChange={(e) => inputFilter(e, el)}/>}
+                                                        : <input type="text" onChange={(e) => inputFilter(e, el)}/>}
                                         </TableCell>
                                     }
                                 )
@@ -153,6 +140,5 @@ export const LeadsTable = ({leads}) => {
                 </Table>
             </TableContainer>
         </div>
-
     );
 }
