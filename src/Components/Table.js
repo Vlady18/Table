@@ -49,7 +49,7 @@ export const LeadsTable = ({leads}) => {
                         if(!newObj[elem]) return it
                         return new Date(it[elem]).getTime() === new Date(newObj[elem]).getTime();
                     }
-                    return it[elem].toLowerCase().indexOf(newObj[elem].toLowerCase()) != -1;
+                    return it[elem].toLowerCase().indexOf(newObj[elem].toLowerCase()) !== -1;
                 })
             })
             setLeadsList(resultFilter)
@@ -66,7 +66,7 @@ export const LeadsTable = ({leads}) => {
         }
         return {items: leadsList, requestSort, sortConfig, inputFilter, statusHandler, pickerHandler, fillters};
     }
-    const {items, requestSort, inputFilter, statusHandler, sortConfig, pickerHandler, fillters} = useSortableData(leads);
+    const {items, requestSort, inputFilter, statusHandler, sortConfig, pickerHandler} = useSortableData(leads);
     const [startDate, setStartDate] = useState('');
     const useStyles = makeStyles({
         table: {
@@ -105,7 +105,7 @@ export const LeadsTable = ({leads}) => {
                                             key={i}>
                                             <span onClick={() => requestSort(el)}>{el}
                                                 {
-                                                    sortConfig && sortConfig.key == el && sortConfig.direction === "ascending" ?
+                                                    sortConfig && sortConfig.key === el && sortConfig.direction === "ascending" ?
                                                         <ArrowDropDownIcon/> : <ArrowDropUpIcon/>
                                                 }
                                             </span>
