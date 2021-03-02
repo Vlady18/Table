@@ -12,7 +12,10 @@ import Paper from '@material-ui/core/Paper';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 
-export const LeadsTable = ({leads}) => {
+export const LeadsTable = ({leads, visibleCol}) => {
+    if(!visibleCol || !visibleCol.length){
+        visibleCol = Object.keys(leads[0])
+    }
     const useSortableData = (items, config = null) => {
         const [sortConfig, setSortConfig] = useState(config);
         const [leadsList, setLeadsList] = useState(leads);
@@ -100,7 +103,7 @@ export const LeadsTable = ({leads}) => {
                     <TableHead>
                         <TableRow>
                             {
-                                Object.keys(leads[0]).map((el, i) => {
+                                visibleCol.map((el, i) => {
                                         return <TableCell
                                             key={i}>
                                             <span onClick={() => requestSort(el)}>{el}
@@ -111,11 +114,11 @@ export const LeadsTable = ({leads}) => {
                                             </span>
                                             {el === 'status'
                                                 ? createSelect(["all", "processing", "ready", "decline"], el)
-                                                : el === 'type' ? createSelect(["all", "product", "company"], el)
-                                                    : el === 'create_date'
-                                                        ? <DatePicker dateFormat="MMMM d, yyyy" selected={startDate}
-                                                                    onChange={date => pickerHandler(date, el)}/>
-                                                        : <input type="text" onChange={(e) => inputFilter(e, el)}/>}
+                                                    : el === 'type' ? createSelect(["all", "product", "company"], el)
+                                                        : el === 'create_date'
+                                                            ? <DatePicker dateFormat="MMMM d, yyyy" selected={startDate}
+                                                                        onChange={date => pickerHandler(date, el)}/>
+                                                                : <input type="text" onChange={(e) => inputFilter(e, el)}/>}
                                         </TableCell>
                                     }
                                 )
@@ -123,19 +126,15 @@ export const LeadsTable = ({leads}) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {items.map((product) => (
+                        {
+                            items.map((product) => (
                             <TableRow key={product.number}>
-                                <TableCell align="left">{product.number}</TableCell>
-                                <TableCell align="left">{product.customer}</TableCell>
-                                <TableCell align="left">{product.status}</TableCell>
-                                <TableCell align="left">{product.actual}</TableCell>
-                                <TableCell align="left">{product.total}</TableCell>
-                                <TableCell align="left">{product.type}</TableCell>
-                                <TableCell align="left">{product.create_date}</TableCell>
-                                <TableCell align="left">{product.close_date}</TableCell>
-                                <TableCell align="left">{product.country}</TableCell>
+                                {
+                                    visibleCol.map((el, i)=><TableCell key={el + i} align="left">{product[el]}</TableCell>)
+                                }
                             </TableRow>
-                        ))}
+                        ))
+                        }
                     </TableBody>
                 </Table>
             </TableContainer>

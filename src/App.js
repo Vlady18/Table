@@ -4,7 +4,10 @@ import {LeadsTable} from "./Components/Table";
 function App() {
   return (
     <div className="App">
-      <LeadsTable leads={leads} />
+      <LeadsTable
+          leads={leads}
+          visibleCol={["number", "country"]}
+      />
     </div>
   );
 }
